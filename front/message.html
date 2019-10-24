@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="http://localhost:3000/style/main.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>message</title>
+</head>
+<body style="background-color: #121212;">
+    <div class="container">
+        <h1 id="header" class="header center">this is awkward...</h1>
+        <p id="message" class="center">there is text that is supposed to be here but something did not work.</p><br>
+        <a id="return" style="font-size: 30px; padding: 10px; margin-left: 45%;" class="thicc curvy btn-white center">go back</a>
+    </div>
+    
+</body>
+<script>
+    var urlParams = new URLSearchParams(location.search);
+    const type = urlParams.get("type") || "this is awkward"
+    const message = urlParams.get("message") || "there is supposed to be a message here but someone (who is not me I promise) fucked up"
+    const back = urlParams.get("back") || "https://www.youtube.com/watch?v=OHmmjnEdtx8"
+    $("#header").text(type)
+    $("#message").text(message)
+    $("#return").attr("href",back)
+</script>
+</html>

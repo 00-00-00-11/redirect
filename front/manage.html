@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="http://localhost:3000/style/main.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>manage</title>
+    <style>
+    .link::before {
+        content: "-"
+    }
+    </style>
+</head>
+<body style="background-color: #121212;">
+    <div id="overlay" class="overlay">
+        <div class="container">
+            <h1 class="header center">manage link</h1>
+            <p>clicks:<span id="clicks"></span></p>
+            <p>protected:<span id="protected"></span></p>
+            <a id="goto" class="thicc curvy btn-white">goto</a> <button class="thicc curvy btn-white">edit</button>
+            <form action="http://localhost:3000/api/l/edit" method="POST" class="form-white">
+                <input type="text" name="id" id="id">
+                <input type="text" name="link" id="link">
+                <input type="text" name="category" id="category">
+                <input type="password" id="password" name="password">
+                <input class="thicc curvy btn-white" style="background-color: transparent; cursor: pointer;" type="submit" value="save">
+            </form>
+        </div>
+    </div>
+    <div class="container">
+            <ul id="sidebar">
+
+            </ul>
+    </div>
+    <div id="snackbar">Some text some message..</div>
+</body>
+<script>
+ window.snack = (msg) => {
+        $("#snackbar").text(msg);
+        $("#snackbar").addClass("show");
+        setTimeout(() => {$("#snackbar").removeClass("show")},3000)
+    }
+
+   let gDat = {}; 
+    $(document).ready(() => {
+        $.get("/user/u/getLinks",(data) => {
+            if(!data) return window.snack("could not fetch data.")
+            
+            for(let i = 0; i < data.length; i++) {
+                let _data = data[i]
+                if(!_data.json) return //faulty format
+                let jsonData = JSON.parse(_data.json)
+                    if(!$(`#${jsonData.category}`).val()) {
+                        $("#sidebar").append(`<li>${jsonData.category}<div class="link" id="${jsonData.category}"></div></li>`)
+                    } 
+                    $(`#${jsonData.category}`).append(`
+                    <a href="#" onclick="window.manageLink('${_data.link}')">${_data.id}</a>
+                    `)
+                    _data.json = jsonData
+                    gDat[_data.link] = _data
+            }
+        })
+    })
+
+    window.manageLink = (l) => {
+        let lData = gDat[l]
+        if(!gDat) return window.snack("something went wrong when retrieving link")
+        $("#overlay").show()
+        $("#clicks").text(lData.json.clicks)
+        $("#protected").text(lData.json.protected.on)
+        $("#goto").attr("href",`localhost:3000/${lData.id}`)
+        $("#edit").attr("onclick",`window.edit(${lData.id})`)
+        $("#id").val(lData.id)
+        $("#link").val(lData.link)
+        $("#category").val(lData.json.category)
+        $("#password").val(lData.json.protected.password)
+    }
+
+</script>
+</html>

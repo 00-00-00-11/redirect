@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="http://localhost:3000/style/main.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body style="background-color: #121212;">
+    <div class="container">
+        <h1 class="header">input password</h1>
+        <form method="GET" class="form-white">
+            <input type="password" name="password">
+            <input type="submit" style="background-color: transparent;" class="thicc curvy btn-white" value="send">
+        </form>
+    </div>
+</body>
+<script>
+$(document).ready(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const myParam = urlParams.get('return');
+    $("form").attr("action",`/${myParam}`)
+})
+</script>
+</html>
