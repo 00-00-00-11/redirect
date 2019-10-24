@@ -1,5 +1,7 @@
 var express = require('express')
 var router = express.Router()
+const h = require("../../lib/helpers")
+const c = require("../../config")
 var db = require("../../index.js").db
 
 
@@ -20,22 +22,22 @@ var db = require("../../index.js").db
                 db.run(`INSERT INTO links VALUES ("${id}","${url}","${linkObject.user}",'${JSON.stringify(linkObject)}')`)
                 return res.redirect(`/user/manage/?id=${id}`)
             } else {
-                return res.redirect("/message/?back=http://localhost:3000&type=error&message=redirect with identical id already exists!")
+                return res.redirect(h.message({e_line:"error",e_message:"redirect with identical id already exists",back:c.host}))
             }
         })
     })
 
 
     router.post("/edit",(req,res) => {
-        if(!req.session.user) return res.redirect("/message/?back=http://localhost:3000&type=error&message=no session on you")
+        if(!req.session.user) return res.redirect(h.message({e_line:"error",e_message:"no session exists for you",back:c.host}))
         let id = req.body.id
         let link = req.body.link
         let password = req.body.password
         let category = req.body.category || "none"
-        if(!id || !link ||!req.session.user) return res.redirect("/message/?back=http://localhost:3000&type=error&message=not enough params passed")
+        if(!id || !link ||!req.session.user) return res.redirect(h.message({e_line:"error",e_message:"not enough amounts of required fields passed",back:c.host}))
         db.all(`SELECT * FROM links WHERE id="${id}" AND user="${req.session.user.id}"`,(e,row) => {
             row = row[0]
-            if(!row) return res.redirect("/message/?back=http://localhost:3000&type=error&message=thing went not work")
+            if(!row) return res.redirect(h.message({e_line:"error",e_message:"something went wrong, sorry!",back:c.host}))
             let linkObject = {
                 user: req.session.user,
                 clicks: row.clicks,

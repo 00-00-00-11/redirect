@@ -2,6 +2,8 @@ var express = require('express')
 var router = express.Router()
 var path = require("path")
 var db = require("../../index").db
+const h = require("../../lib/helpers")
+const c = require("../../config")
 
 router.get('/', (req,res) => {
     res.sendFile(path.join(__dirname, "../../front","main.html"));
@@ -23,7 +25,7 @@ router.get("/:id",(req,res,next) => {
         if(!row) return next()
         let jData = JSON.parse(row.json)
         if(jData.protected.on && !password) return res.redirect(`/auth?return=${req.params.id}`)
-        else if(jData.protected.on && jData.protected.password != password) return res.redirect("/message/?back=http://localhost:3000&type=error&message=wrong password")
+        else if(jData.protected.on && jData.protected.password != password) return res.redirect(h.message({e_line:"error",e_message:"wrong password!",back:`${c.host}/${req.params.id}`}))
         res.redirect(row.link)
     })
 })

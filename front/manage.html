@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" type="text/css" href="http://localhost:3000/style/main.css">
+    <link rel="stylesheet" type="text/css" href="/style/main.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <title>manage</title>
     <style>
@@ -20,7 +20,7 @@
             <p>clicks:<span id="clicks"></span></p>
             <p>protected:<span id="protected"></span></p>
             <a id="goto" class="thicc curvy btn-white">goto</a> <button class="thicc curvy btn-white">edit</button>
-            <form action="http://localhost:3000/api/l/edit" method="POST" class="form-white">
+            <form action="/api/l/edit" method="POST" class="form-white">
                 <input type="text" name="id" id="id">
                 <input type="text" name="link" id="link">
                 <input type="text" name="category" id="category">
@@ -70,7 +70,7 @@
         $("#overlay").show()
         $("#clicks").text(lData.json.clicks)
         $("#protected").text(lData.json.protected.on)
-        $("#goto").attr("href",`localhost:3000/${lData.id}`)
+        $("#goto").attr("href",`/${lData.id}`)
         $("#edit").attr("onclick",`window.edit(${lData.id})`)
         $("#id").val(lData.id)
         $("#link").val(lData.link)

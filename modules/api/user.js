@@ -3,6 +3,8 @@ var router = express.Router()
 var path = require("path")
 const bc = require("bcrypt");
 const db = require("../../index").db
+const h = require("../../lib/helpers")
+const c = require("../../config")
 
 //vars needed for crypt
 
@@ -15,15 +17,15 @@ const db = require("../../index").db
         const saltRounds = 5;
         const id = req.body.id
         const password = req.body.password
-        if(!id||!password) return res.redirect(`/message/?back=/user/login&type=login error&message=could not create your account since you failed to pass all needed params`)
+        if(!id||!password) return res.redirect(h.message(res,{e_line:"account error",e_message:"could not create account since required params are missing",back:c.host}))
         db.all(`SELECT * FROM users WHERE id="${id}"`,(err,row) => {
             if(row && row.length != 0) {
-                return res.redirect(`/message/?back=/user/login&type=login error&message=username taken`)
+                return res.redirect(h.message(res,{e_line:"account error",e_message:"username taken!",back:c.host}))
             } else {
                 bc.genSalt(saltRounds,(err,salt) => {
-                    if(err) return res.redirect(`/message/?back=https://en.wikipedia.org/wiki/Salt&type=salt error&message=could not generate salt... but that does not stop you from trying`)
+                    if(err) return res.redirect(h.message(res,{e_line:"database error",e_message:"could not generate salt",back:c.host}))
                     bc.hash(password,salt,(err, hash) => {
-                        if(err) return res.redirect(`/message/?back=/user/login&type=hash error&message=could not generate password hash`)
+                        if(err) return res.redirect(h.message(res,{e_line:"crypt error",e_message:"could not hash password",back:c.host}))
                         const uObj = {
                             perms: 0
                         }
@@ -38,17 +40,17 @@ const db = require("../../index").db
     router.post("/login",(req,res) => {
         const id = req.body.id
         const password = req.body.password
-        if(!id||!password) return res.redirect(`/message/?back=/user/login&type=login error&message=could not authorise your account since you failed to pass all needed params`)
+        if(!id||!password) return res.redirect(h.message({e_line:"authentication error",e_message:"could not login to account since required params are missing",back:c.host}))
         db.all(`SELECT * FROM users WHERE id="${id}"`,(err,row) => {
             row = row[0]
-            if(!row) return res.redirect(`/message/?back=/user/login&type=login error&message=invalid password/username`)
+            if(!row) return res.redirect(h.message({e_line:"account error",e_message:"invalid username/password",back:c.host}))
             bc.compare(password,row.password,(err,comparedBool) => {
-                if(err || !comparedBool) return res.redirect(`/message/?back=/user/login&type=login error&message=invalid password/username`)
+                if(err || !comparedBool) return res.redirect(h.message({e_line:"account error",e_message:"invalid username/password",back:c.host}))
                 req.session.user = {
                     id:row.id,
                     data:JSON.parse(row.json)
                 }
-                return res.redirect(`/message/?back=/user/u/manage&type=logged in!&message=click button below to go to manage page`)
+                return res.redirect(h.message({e_line:"logged in!",e_message:"click button to go to management page",back:`${c.host}/user/u/manage`}))
             })
         })
     })
@@ -60,7 +62,7 @@ const db = require("../../index").db
 
     router.get("/u/getLinks",(req,res) => {
         db.all(`SELECT * FROM links WHERE user = "${req.session.user.id}"`,(err,rows) => {
-            if(err) return res.redirect("/message/?back=/user/u/manage&type=data fetch error&message=database query went wack")
+            if(err) return res.redirect(h.message({e_line:"db err",e_message:"database query went wack",back:`${c.host}/user/u/manage`}))
             res.send(rows)
         })
     })
