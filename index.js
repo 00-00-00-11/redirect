@@ -21,29 +21,25 @@ app.use(bp.urlencoded({extended: true}))
 const sqlite = require("sqlite3").verbose();
 let db = new sqlite.Database("./data/data.db");
 
+
 module.exports = {
-    db:db
+    db:db,
+    requiredPackages: ["express-session","express","sqlite3"]
 }
-
 let mList = moduleLoader("./modules");
-
-/*
-    db.run("CREATE TABLE links (id TEXT,link TEXT,user TEXT,json TEXT)")
-    db.run("CREATE TABLE users (id TEXT,password TEXT,json TEXT)")
-*/
 
 
 
 mList.forEach(m=> {
     if(m.type === "misc") {
-        m.onLoad ? m.onLoad() : null
+        m.onLoad ? m.onLoad(mList) : null
     }
     else if(m.type === 'router') {
         app.use(m.baseUrl,m.router);
     }
 }) 
 app.listen(config.port||3000,() => {
-    h.log(`webserver started @ ${config.host}`,h.logTypes.log)
+    h.log(`webserver started @ ${config.host}`,h.logTypes.ok)
 });
 
 

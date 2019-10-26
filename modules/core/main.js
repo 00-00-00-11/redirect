@@ -24,9 +24,11 @@ router.get("/:id",(req,res,next) => {
         let row = rows[0]
         if(!row) return next()
         let jData = JSON.parse(row.json)
+        jData.clicks += 1
         if(jData.protected.on && !password) return res.redirect(`/auth?return=${req.params.id}`)
         else if(jData.protected.on && jData.protected.password != password) return res.redirect(h.message({e_line:"error",e_message:"wrong password!",back:`${c.host}/${req.params.id}`}))
         res.redirect(row.link)
+        db.run(`UPDATE links SET json='${JSON.stringify(jData)}' WHERE id="${req.params.id}"`)
     })
 })
 

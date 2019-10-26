@@ -2,17 +2,22 @@ var db = require("../../index").db
 const h = require("../../lib/helpers")
 const c = require("../../config")
 
-const checkConditions = () => {
+const checkConditions = (ml) => {
     h.log(`version: ${c.applicationMeta.version}`)
     h.log(`operating system: ${require("os").platform()}`)
     let missingPackages = []
-    for(let i = 0; i < c.applicationMeta.required_packages.length; i++) {
+    let requiredPackages = require("../../index").requiredPackages
+    ml.forEach(m => {
+        if(m.requiredPackages) requiredPackages.push(...m.requiredPackages)
+    })
+
+    for(let i = 0; i < requiredPackages.length; i++) {
         try {
-            let p = require.resolve(c.applicationMeta.required_packages[i])
-            h.log(`required package "${c.applicationMeta.required_packages[i]}" exists!`,h.logTypes.ok)
+            let p = require.resolve(requiredPackages[i])
+            h.log(`required package "${requiredPackages[i]}" exists!`,h.logTypes.ok)
         } catch(e) {
-            h.log(`required package "${c.applicationMeta.required_packages[i]}" is missing!`,h.logTypes.warn)
-            missingPackages.push(c.applicationMeta.required_packages[i])
+            h.log(`required package "${requiredPackages[i]}" is missing!`,h.logTypes.warn)
+            missingPackages.push(requiredPackages[i])
         }
     }
     if(missingPackages.length != 0) {
@@ -21,7 +26,7 @@ const checkConditions = () => {
     }
 }
 
-const onLoad = () => {
+const onLoad = (ml) => {
     var args = process.argv.slice(2).join(" ");
     if(args.includes("-newDb")) {
             db.run("CREATE TABLE links (id TEXT,link TEXT,user TEXT,json TEXT)",(e) => {
@@ -33,9 +38,7 @@ const onLoad = () => {
                 h.log("created table links",h.logTypes.ok)
             })
     }
-
-    checkConditions()
-
+    checkConditions(ml)
 }
 
 module.exports = {

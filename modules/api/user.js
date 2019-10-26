@@ -78,5 +78,6 @@ const c = require("../../config")
 module.exports = {
     type: 'router',
     baseUrl: '/user/',
-    router:router
+    router:router,
+    requiredPackages: ["bcrypt"]
 }
