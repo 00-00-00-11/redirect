@@ -30,6 +30,7 @@ const c = require("../../config")
                             perms: 0
                         }
                         db.run(`INSERT INTO users VALUES ("${id}","${hash}",'${JSON.stringify(uObj)}')`,)
+                        h.log(`user created with username "${id}"`)
                         res.redirect("/user/login")
                     })
                 })

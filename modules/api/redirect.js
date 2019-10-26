@@ -20,7 +20,8 @@ var db = require("../../index.js").db
                     }
                 }
                 db.run(`INSERT INTO links VALUES ("${id}","${url}","${linkObject.user}",'${JSON.stringify(linkObject)}')`)
-                return res.redirect(`/user/manage/?id=${id}`)
+                h.log(`redirect created with id "${id}"`)
+                return res.redirect(h.message({e_line:`link created!`,e_message:`link ${c.host}/${id} created!`,back:`${c.host}/${id}`}))
             } else {
                 return res.redirect(h.message({e_line:"error",e_message:"redirect with identical id already exists",back:c.host}))
             }
