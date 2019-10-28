@@ -3,7 +3,7 @@ var router = express.Router()
 const h = require("../../lib/helpers")
 const c = require("../../config")
 var db = require("../../index.js").db
-
+//TODO: document this file
 
     router.post("/newLink",(req,res) => {
         let url = req.body.url
@@ -42,7 +42,6 @@ var db = require("../../index.js").db
             let linkObject = {
                 user: req.session.user,
                 clicks: row.clicks,
-                category: category,
                 protected: {
                     on:password?true:false,
                     password:password
@@ -51,6 +50,21 @@ var db = require("../../index.js").db
 
             db.run(`UPDATE links SET id="${id}", link="${link}",json='${JSON.stringify(linkObject)}'`)
             return res.redirect("/user/u/manage")
+        })
+    })
+
+    router.get("/fetchInfo/:link",(req,res) => {
+        if(!req.params.link) return res.send(">:(")
+        db.all(`SELECT * FROM links WHERE id="${req.params.link}"`,(e,rows) => {
+            if(e) {
+                h.log(e,h.logTypes.error)
+                return res.send("lol error")
+            }
+            let row = rows[0]
+            if(!row) return res.send("no such link")
+            let jData = JSON.parse(row.json)
+            if(jData.protected.on) return res.send("this link is protected.")
+            else res.send(row)
         })
     })
 

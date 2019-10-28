@@ -5,6 +5,8 @@ const bc = require("bcrypt");
 const db = require("../../index").db
 const h = require("../../lib/helpers")
 const c = require("../../config")
+//TODO: document this file
+
 
 //vars needed for crypt
 
@@ -27,7 +29,7 @@ const c = require("../../config")
                     bc.hash(password,salt,(err, hash) => {
                         if(err) return res.redirect(h.message(res,{e_line:"crypt error",e_message:"could not hash password",back:c.host}))
                         const uObj = {
-                            perms: 0
+                            perms: c.admins.includes(id) ? 100 : 0
                         }
                         db.run(`INSERT INTO users VALUES ("${id}","${hash}",'${JSON.stringify(uObj)}')`,)
                         h.log(`user created with username "${id}"`)

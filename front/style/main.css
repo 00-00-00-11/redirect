@@ -92,6 +92,7 @@
       cursor: pointer;
     }
 
+
     .navbarSide li:hover {
       background-color: blue;
     }
@@ -110,9 +111,13 @@
 
       .navbar {
         list-style-type: none;
-        margin: 0;
         padding: 0;
+        margin: 0;
         overflow: hidden;
+      }
+
+      .selected {
+        background-color: rgba(17, 192, 245, 0.226)
       }
 
       .navbar li {
