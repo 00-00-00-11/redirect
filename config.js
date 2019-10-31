@@ -10,6 +10,6 @@ module.exports = {
     //perm conf
     perms: {
         //anyone with this perm lvl can do anything basically. dangerous
-        administrator: 100
+        administrator: 100,
     }
 }

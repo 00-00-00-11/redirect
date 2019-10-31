@@ -8,6 +8,7 @@ var db = require("../../index.js").db
     router.post("/newLink",(req,res) => {
         let url = req.body.url
         let id = req.body.id
+        if(!url || !id) return res.redirect(h.message({e_line:"error",e_message:"not enough params passed",back:"/"}))
         db.all(`SELECT * FROM links where id="${id}"`,(e,row) => {
             if(!row || row.length === 0) {
                 let linkObject = {
@@ -21,7 +22,7 @@ var db = require("../../index.js").db
                 }
                 db.run(`INSERT INTO links VALUES ("${id}","${url}","${linkObject.user}",'${JSON.stringify(linkObject)}')`)
                 h.log(`redirect created with id "${id}"`)
-                return res.redirect(h.message({e_line:`link created!`,e_message:`link ${c.host}/${id} created!`,back:`${c.host}/${id}`}))
+                return res.redirect(h.message({e_line:`link created!`,e_message:`link ${c.host}/${id} created!`,back:c.host}))
             } else {
                 return res.redirect(h.message({e_line:"error",e_message:"redirect with identical id already exists",back:c.host}))
             }
@@ -34,11 +35,10 @@ var db = require("../../index.js").db
         let id = req.body.id
         let link = req.body.link
         let password = req.body.password
-        let category = req.body.category || "none"
-        if(!id || !link ||!req.session.user) return res.redirect(h.message({e_line:"error",e_message:"not enough amounts of required fields passed",back:c.host}))
-        db.all(`SELECT * FROM links WHERE id="${id}" AND user="${req.session.user.id}"`,(e,row) => {
+        if(!id || !link ||!req.session.user) return res.send("ERROR")
+        db.all(`SELECT * FROM links WHERE id="${id}" ${req.session.user.data.perms >= c.perms.administrator ? "" : `AND user="${req.session.user.id}`}`,(e,row) => {
             row = row[0]
-            if(!row) return res.redirect(h.message({e_line:"error",e_message:"something went wrong, sorry!",back:c.host}))
+            if(!row) return res.send("ERROR")
             let linkObject = {
                 user: req.session.user,
                 clicks: row.clicks,
@@ -48,8 +48,8 @@ var db = require("../../index.js").db
                 }
             }
 
-            db.run(`UPDATE links SET id="${id}", link="${link}",json='${JSON.stringify(linkObject)}'`)
-            return res.redirect("/user/u/manage")
+            db.run(`UPDATE links SET id="${id}", link="${link}",json='${JSON.stringify(linkObject)}' WHERE id="${id}"`)
+            return res.send("OK")
         })
     })
 
@@ -67,6 +67,16 @@ var db = require("../../index.js").db
             else res.send(row)
         })
     })
+router.get("/delete",(req,res) => {
+    let id = req.query.id
+    if(!id) return res.send("ERROR:no id passwed")
+    if(!req.session||!req.session.user) return res.send("ERROR:no session")
+        db.run(`DELETE FROM links WHERE id="${id}" ${req.session.user.data.perms >= c.perms.administrator ? "" : `AND user="${req.session.user.id}"`}`,(e) => {
+            if(e) return res.send("ERROR:db querying error")
+            else res.send("OK")
+        })
+
+})
 
 
 module.exports = {

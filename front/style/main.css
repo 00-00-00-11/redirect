@@ -5,7 +5,13 @@
         color:white;
     }
 
+    table {
+      border: 1px solid purple;
+    }
 
+    table td,th {
+      border: 1px solid purple;
+    }
     
     .center {
         text-align: center;

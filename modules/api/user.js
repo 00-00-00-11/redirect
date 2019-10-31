@@ -64,15 +64,54 @@ const c = require("../../config")
     })
 
     router.get("/u/getLinks",(req,res) => {
-        db.all(`SELECT * FROM links WHERE user = "${req.session.user.id}"`,(err,rows) => {
-            if(err) return res.redirect(h.message({e_line:"db err",e_message:"database query went wack",back:`${c.host}/user/u/manage`}))
-            res.send(rows)
+            db.all(`SELECT * FROM links ${req.session.user.data.perms >= c.perms.administrator ? "" : `WHERE user = "${req.session.user.id}"`}`,(err,rows) => {
+                if(err) return res.redirect(h.message({e_line:"db err",e_message:"database query went wack",back:`${c.host}/user/u/manage`}))
+                res.send(rows)
+            })
+    })
+
+    const runCommand = (c,args,req) => {
+        if(!c || !args) return {type:"error",line:">:("}
+        let cmd
+        try {
+        cmd = require(`../../commands/${c}.js`)
+        } catch(e) {
+            return {
+                type:"error",
+                line: `no such command "${c}"`
+            }
+        }
+            if(!cmd || !cmd.meta || !cmd.run) return {type:"cmdError",line:"command format wrong"}
+            if(cmd.meta.requiredLevel > req.session.user.data.perms) return {type:"authError",line:`command "${c}" requires perm level ${cmd.meta.requiredLevel} but you only have ${req.session.user.data.perms}`}
+            try {
+                let ans = cmd.run(args)
+                return ans
+            } catch(e) {
+                return {
+                    type:"cmdError",
+                    line:e.message
+                }
+            }
+
+
+    }
+
+    router.get("/u/runCommand",(req,res) => {
+        let command = req.query.command
+        let args = req.query.params.split(",")
+        if(!command || !args) return res.send ({
+            type:"error",
+            line:"not enough query params passed"
+        })
+        let cmd = runCommand(command,args,req)
+        return res.send({
+            type:cmd.type,
+            line: cmd.line
         })
     })
 
     router.get("/u/manage",(req,res) => {
         res.sendFile(path.join(__dirname, "../../front/","manage.html"));
-        
     })
 
 

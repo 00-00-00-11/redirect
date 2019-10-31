@@ -1,2 +1,4 @@
-# this is a url shortener thing that is very WIP. it is working but barely
-no docs yet lol
+# open source link shortener w/ modular support
+
+## setup
+if you are running for the first time do "node . -newDb" which creates the required tables

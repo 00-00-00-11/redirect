@@ -6,16 +6,40 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" type="text/css" href="/style/main.css">
     <link rel="stylesheet" type="text/css" href="/style/themes.css">
+    <link rel="stylesheet" type="text/css" href="/style/page.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/style/pageHandler.js"></script>
     <title>manage</title>
 </head>
 <body style="background-color: #121212;">
-    <div style="width: 100%;">
-        <ul class="navbar navbar-black">
-            <li><a href="/#/links">links</a></li>
-            <li><a href="/#/console">links</a></li>
-            <li><a href="/#/account">links</a></li>
+    <div style="width: 100%; border: 1px solid purple;">
+        <ul class="navbar">
+            <li><a href="#/links">links</a></li>
+            <li><a href="#/console">console</a></li>
         </ul>
+    </div>
+    <div>
+        <div style="background-color: black; color:green; min-height: 50vh; padding: 10px;" id="console" class="page">
+            <div id="consoleOutput">
+                <span style="color: green;"> run commands </span><br>
+            </div>
+            <input placeholder="input cmd" style="width: 100%; background-color: transparent; color:green; border: none;" type="test" id="consoleInput" class="">
+        </div>
+        <div id="links" class="page container">
+            <h1 class="center header">manage links</h1>
+            <table style="width: 100%;">
+                <thead>
+                    <th>id</th>
+                    <th>link</th>
+                    <th>password</th>
+                    <th>user</th>
+                    <th>save</th>
+                    <th>delete</th>
+                </thead>
+                <tbody id="linkTable">
+                </tbody>
+            </table>
+        </div>
     </div>
     <div id="snackbar">Some text some message..</div>
 </body>
@@ -35,11 +59,121 @@
                 let _data = data[i]
                 if(!_data.json) return //faulty format
                 let jsonData = JSON.parse(_data.json)
-
+                $("#linkTable").append(`
+                <tr DB_id="${_data.id}">
+                    <td><a href="/${_data.id}">${_data.id}</a></td>
+                    <td DB_link="${_data.id}" contenteditable="true">${_data.link}</td>
+                    <td DB_password="${_data.id}" contenteditable="true">${jsonData.protected.password||""}</td>
+                    <td>${_data.user}</td>
+                    <td><button style="background-color:green;" onclick="window.save('${_data.id}')">save</button></td>
+                    <td><button style="background-color:red;" onclick="window.delete('${_data.id}')">delete</button></td>
+                </tr>
+                `)
             }
         })
     })
 
+    var commands = {
+        remote: (args) => {
+            let cmd = args[0]
+            let arg = args.slice(1)
+            if(!arg || !cmd) return $("#consoleOutput").append(`<span style="color: green;">[error@remote] not enough params passed</span><br>`)
+            $.get(`/user/u/runCommand?command=${cmd}&params=${arg.join(",")}`,(d) => {
+            if(!d) return window.snack("no data passed")
+            $("#consoleOutput").append(`<span style="color: green;">[${d.type}] ${d.line}</span><br>`)
+        })
+        },
+        clear: () => {
+            $("#consoleOutput").empty()
+        },
+        help: () => {
+            let keys = Object.keys(commands)
+            for(let i = 0; i < keys.length; i++) {
+                let key = keys[i]
+                $("#consoleOutput").append(`<span style="color: green;">[command@help] ${key}</span><br>`)
+            }
+        },
+        getLinks: () => {
+            $.get("/user/u/getLinks",(d) => {
+                $("#consoleOutput").append(`<span style="color: green;">[data@getLinks] got ${d.length} row(s)</span><br>`)
+                for(let i = 0; i < d.length; i++) {
+                    let r = d[i]
+                    $("#consoleOutput").append(`<span style="color: green;">[row@getLinks] id:${r.id}, json:${r.json}, link:${r.link}</span><br>`)
+                }
+            })
+        },
+        create: (args) => {
+            if(!args[0] || !args[1]) $("#consoleOutput").append(`<span style="color: green;">[error@create] no params passed. syntax: create [id] [link] </span><br>`)
+                        $.ajax({
+            type: "POST",
+            url: "/api/l/newLink",
+            data: {
+                id:args[0],
+                url:args[1]
+            },
+            success: (e) => {
+                $("#consoleOutput").append(`<span style="color: green;">[answer@create] maybe it worked, maybe it didnt </span><br>`)
+            }
+            });
+        }
+    }
+
+
+
+    const handleInput = (is) => {
+        if(!is) return
+        let str = is.split(" ")
+        let cmd = str[0]
+        let args = str.slice(1)
+        let command = commands[cmd]
+        $("#consoleOutput").append(`<span style="color: green;">${is}</span><br>`)
+        $("#consoleInput").val("")
+        if(!command) return $("#consoleOutput").append(`<span style="color: green;">[error] no such command "${cmd}"</span><br>`)
+        command(args)
+    }
+
+    $("#consoleInput").on("keypress",(e) => {
+        if(e.which === 13) {
+            handleInput($("#consoleInput").val())
+        }
+    })
+
+
+    const getobject = (id) => {
+        let o = $(`tr[DB_id="${id}"]`)
+        if(!o) return false
+        return {
+            id:id,
+            link: $(`td[DB_link="${id}"]`).text(),
+            password: $(`td[DB_password="${id}"]`).text()
+        }
+    }
+
+    window.save = (id) => {
+        let e = getobject(id)
+            $.ajax({
+    type: "POST",
+    url: "/api/l/edit",
+    data: e,
+    success: (r) => {
+        if(r === "OK") {
+            window.snack("saved changes!")
+        } else {
+            window.snack(r)
+        }
+    },
+    });
+    }
+
+    window.delete = (id) => {
+        $.get(`/api/l/delete?id=${id}`,(r) => {
+            if(r === "OK") {
+            window.snack("link deleted!")
+        } else {
+            window.snack(r)
+        }
+        })
+    }
 
 </script>
 </html>
