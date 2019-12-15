@@ -19,21 +19,21 @@ const c = require("../../config")
         const saltRounds = 5;
         const id = req.body.id
         const password = req.body.password
-        if(!id||!password) return res.redirect(h.message(res,{e_line:"account error",e_message:"could not create account since required params are missing",back:c.host}))
+        if(!id||!password) return res.status(400).send({type:"bad request",data:"parameters missing"})
         db.all(`SELECT * FROM users WHERE id="${id}"`,(err,row) => {
             if(row && row.length != 0) {
-                return res.redirect(h.message(res,{e_line:"account error",e_message:"username taken!",back:c.host}))
+                return res.status(403).send({type:"Forbidden",data:"username taken"})
             } else {
                 bc.genSalt(saltRounds,(err,salt) => {
-                    if(err) return res.redirect(h.message(res,{e_line:"database error",e_message:"could not generate salt",back:c.host}))
+                    if(err) return res.status(500).send({type:"internal error",data:"could not generate salt"})
                     bc.hash(password,salt,(err, hash) => {
-                        if(err) return res.redirect(h.message(res,{e_line:"crypt error",e_message:"could not hash password",back:c.host}))
+                        if(err) return res.status(500).send({type:"internal error",data:"could not hash password"})
                         const uObj = {
                             perms: c.admins.includes(id) ? 100 : 0
                         }
                         db.run(`INSERT INTO users VALUES ("${id}","${hash}",'${JSON.stringify(uObj)}')`,)
                         h.log(`user created with username "${id}"`)
-                        res.redirect("/user/login")
+                        return res.status(201).send({type:"Created",data:"user created"})
                     })
                 })
             }
@@ -43,17 +43,17 @@ const c = require("../../config")
     router.post("/login",(req,res) => {
         const id = req.body.id
         const password = req.body.password
-        if(!id||!password) return res.redirect(h.message({e_line:"authentication error",e_message:"could not login to account since required params are missing",back:c.host}))
+        if(!id||!password) return res.status(400).send({type:"bad request",data:"parameters missing"})
         db.all(`SELECT * FROM users WHERE id="${id}"`,(err,row) => {
             row = row[0]
-            if(!row) return res.redirect(h.message({e_line:"account error",e_message:"invalid username/password",back:c.host}))
+            if(!row) return res.status(401).send({type:"Unauthorized",data:"wrong credentials"})
             bc.compare(password,row.password,(err,comparedBool) => {
-                if(err || !comparedBool) return res.redirect(h.message({e_line:"account error",e_message:"invalid username/password",back:c.host}))
+                if(err || !comparedBool) return res.status(401).send({type:"Unauthorized",data:"wrong credentials"})
                 req.session.user = {
                     id:row.id,
                     data:JSON.parse(row.json)
                 }
-                return res.redirect(h.message({e_line:"logged in!",e_message:"click button to go to management page",back:`${c.host}/user/u/manage`}))
+                return res.status(200).send({type:"OK",data:"logged in"})
             })
         })
     })
@@ -65,7 +65,7 @@ const c = require("../../config")
 
     router.get("/u/getLinks",(req,res) => {
             db.all(`SELECT * FROM links ${req.session.user.data.perms >= c.perms.administrator ? "" : `WHERE user = "${req.session.user.id}"`}`,(err,rows) => {
-                if(err) return res.redirect(h.message({e_line:"db err",e_message:"database query went wack",back:`${c.host}/user/u/manage`}))
+                if(err) return res.status(500).send({type:"internal error",data:"could not query"})
                 res.send(rows)
             })
     })

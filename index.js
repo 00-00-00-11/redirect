@@ -6,6 +6,13 @@ const moduleLoader = require("./lib/loadModules");
 const bp = require("body-parser")
 const session = require('express-session')
 const h = require("./lib/helpers")
+const rateLimit = require("express-rate-limit");
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use(limiter)
 
 //session cookie config
 app.use(session({
@@ -17,8 +24,6 @@ app.use(session({
   cookie: { secure: false,httpOnly:false }
 }))
 
-//serve static css files, this would be better to do with something like nginx but idc
-app.use("/style",express.static("./front/style"))
 app.use(bp.urlencoded({extended: true}))
 //Database
 const sqlite = require("sqlite3").verbose();
@@ -28,7 +33,7 @@ module.exports = {
     //pass databse
     db:db,
     //packages that are needed globaly
-    requiredPackages: ["express-session","express","sqlite3"]
+    requiredPackages: ["express-session","express","sqlite3","express-rate-limit"]
 }
 //Load modules
 let mList = moduleLoader("./modules");

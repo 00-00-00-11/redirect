@@ -1,49 +1,160 @@
 <!DOCTYPE html>
-<html lang="en">
+<html theme="dark" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" type="text/css" href="/style/main.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    
+
+    <!-- framework -->
+    <link rel="stylesheet" href="https://familyfriendly.xyz/s/assets/css/ff.css?v=1.2.3">
+    <script src="https://familyfriendly.xyz/s/assets/js/ffs.js?v=1.2.3"></script>
+
+    <style>
+    html {
+        --secondary:#1e272e;
+    }
+    
+    #nav {
+        background-color: var(--secondary);
+    }
+
+    .navbar {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .navbar li {
+        float: left;
+    }
+
+    .navbar li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+    }
+
+    .navbar li a:hover {
+        background-color: grey;
+    }
+
+    svg {
+        fill: white;
+    }
+
+    .header-big {
+        font-size: 50px;
+    }
+
+    #id {
+        background-color: transparent;
+        border: none;
+        border-bottom: 2px solid green;
+        color: inherit;
+        width: 50px;
+    }
+
+    .error {
+        border-bottom: 2px solid red !important;
+    }
+
+    .fixedFooter {
+        position: fixed;
+        bottom: 0;
+        background-color: var(--secondary);
+        width: 100%;
+        padding: 10px;
+    }
+    </style>
     <title>home</title>
 </head>
-<body style="background-color: #121212;">
-    <div id="overlay" class="overlay">
-        <a href="#" onclick="window.closeOverlay()"><h1>X</h1></a>
-            <div class="container" style="background-color: #121212; border-radius: 25px; border: 1px solid white; padding: 1%;">
-                    <h1 class="center header">options</h1>
-                    <form action="/api/l/newLink" method="POST">
-                        <h2>link:</h2>
-                            <input id="fLink" class="textField" placeholder="https://yourlink.com" type="text" name="url">
-                            <h2>id:</h2>
-                            <input id="id" class="textField" placeholder="cool id" type="text" name="id">
-                            <input value="generate link" type="submit" style="background-color: transparent; border: 1px solid white;">
-                    </form>
-            </div>
+<body>
+    <!-- HEADER CONTENT -->
+    <div class="header" id="nav">
+        <ul class="navbar" style="float: right;">
+        <li data-tooltip="manage"><a href="/user/u/manage"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6 17h-12v-2h12v2zm0-4h-12v-2h12v2zm0-4h-12v-2h12v2z"/></svg></a></li>
+        <li data-tooltip="login"><a href="/user/login"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16.625 8.292c0 .506-.41.917-.917.917s-.916-.411-.916-.917.409-.917.916-.917.917.411.917.917zm7.375 3.708c0 6.627-5.373 12-12 12s-12-5.373-12-12 5.373-12 12-12 12 5.373 12 12zm-11.293 1.946c-1.142-.436-2.065-1.312-2.561-2.423l-3.146 3.185v2.292h3v-1h1v-1h.672l1.035-1.054zm5.293-4.279c0-2.025-1.642-3.667-3.667-3.667-2.024 0-3.666 1.642-3.666 3.667s1.642 3.667 3.666 3.667c2.025-.001 3.667-1.643 3.667-3.667z"/></svg></a></li>
+    </ul>
+    </div>
+    <!-- END HEADER CONTENT -->
+
+    <!-- COMPONENTS -->
+    <div id="create" style="display: none; background-color: var(--bgMain); overflow-y: scroll;" class="centerDiv br-cyan">
+        <div style="padding: 3%;">
+            <h2>id:</h2>
+            <span id="hostname">l.familyfriendly.xyz/</span><input onchange="checkIfTaken()" id="id" type="text"><br>
+            <small id="id_error"></small>
+            <h2>url:</h2>
+            <input type="url" id="url">
+            <button onclick="createLink()" class="btn-green">generate</button>
+        </div>
     </div>
 
+    <!-- MAIN CONTENTS -->
     <div class="container">
-        <h1 class="center header">shorten link</h1>
-            <input id="link" class="textField" placeholder="https://yourlink.com" type="text" style="float: left; width: 90%; height: 30px !important;">
-            <button onclick="window.shortenLink()" style="float:left; background-color: blue; height: 30px;">→</button>
+        <div class="center">
+        <h1 class="header-big">Shorten link</h1>
+        <input id="_url" type="url"> <button onclick="create()" style="border-radius: 0;" class="btn-blue"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"><path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/></svg></button>
+    </div>
+    </div>
+    <!-- END MAIN CONTENTS -->
 
-        </div>
-    <div id="snackbar">Some text some message..</div>
-    <div class="footer">
-            <div class="container">
-                <ul class="navbar">
-                    <li><a href="/user/login">login</a></li>
-                    <li><a href="https://github.com/ffamilyfriendly/redirect">repo</a></li>
-                </ul>
-            </div>
-        </div>
+    <!-- footer -->
+    <div class="fixedFooter">
+        <ul class="navbar">
+            <li><a href="https://github.com/ffamilyfriendly/redirect"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></a></li>
+        </ul>
+    </div>
 </body>
 <script>
-    window.snack = (msg) => {
-        $("#snackbar").text(msg);
-        $("#snackbar").addClass("show");
-        setTimeout(() => {$("#snackbar").removeClass("show")},3000)
+$(document).ready(function() {
+    $("#hostname").text((window.location.host||"localhost") + "/")
+})
+
+    function checkIfTaken() {
+        let id = $("#id").val()
+        let apiUrl = `/api/l/fetchInfo/${id}`
+        $.get(apiUrl,(data) => {
+            if(data != "no such link") {
+                $("#id").addClass("error")
+                $("#id_error").text("link already taken")
+            } else {
+                $("#id").removeClass("error")
+                $("#id_error").text("link is available")
+            }
+        })
+    }
+
+    function create() {
+        if($("#_url").val() === "") return $("#_url").effect("bounce")
+        $("#id").val(btoa(Math.floor(Math.random()*200).toString()))
+        $("#url").val($("#_url").val())
+        $("#create").show()
+    }
+
+    function createLink() {
+        const url = $("#url").val()
+        const id = $("#id").val()
+        if(!url || !id || $("#id_error").text() === "link already taken") return
+        $.ajax({
+            method:"POST",
+            url:`/api/l/newLink`,
+            data:{url,id},
+            success:function(data) {
+                $("#create").append(`<p>generated link: <a href="https://${window.location.host}/${id}">https://${window.location.host}/${id}</a></p>`)
+            },
+            error:function(data) {
+                $("#create").effect("shake")
+                $("#create").prepend(`<div onclick="$(this).remove()" class="header h-error">${data.responseJSON.type}(${data.status}): ${data.responseJSON.data}</div>`)
+            }
+        })
     }
 
     window.shortenLink = () => {
@@ -54,11 +165,7 @@
         }
         $("#overlay").show();
         $("#fLink").val(url)
-        $("#id").val(btoa(Math.floor(Math.random()*200).toString()))
-    }
-
-    window.closeOverlay = () => {
-        $("#overlay").hide();
+        
     }
 </script>
 </html>
