@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html theme="dark" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,35 +11,13 @@
     <title>login</title>
     <style>
 
-    #bg {
-        background-image: linear-gradient(-90deg, #CF77F3 0%, #009BFF 47%, #2AC9DB 100%);
-        filter: blur(5px);
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-    }
-
-    #bgWhite {
-        background-color: white;
-        opacity: 0.5;
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        -webkit-box-shadow: 0px 7px 50px 0px rgba(0,0,0,0.39);
-        -moz-box-shadow: 0px 7px 50px 0px rgba(0,0,0,0.39);
-        box-shadow: 0px 7px 50px 0px rgba(0,0,0,0.39);
-    }
-
     input {
         width: 90%;
-        margin-top: 10%;
-        border: 1px solid white;
-        padding: 3px;
-        background-color: transparent;
+        border: 1px solid black;
+        padding: 7px;
+        margin-top: 3%;
+        background-color: white;
+        border-radius: 7px;
     }
 
     input[type="submit"] {
@@ -57,26 +35,23 @@
     </style>
 </head>
 <body>
-    <div id="bg"></div>
     <div class="container">
-        <div style="background-color: transparent;" class="centerDiv">
-            <div id="bgWhite"></div>
-            <div id="main" class="container">
+        <div style="background-color: transparent;" class="centerDiv center">
             <h1 id="login_text">login</h1>
             <div>
                 <input type="text" id="username" placeholder="username">
                 <input type="password" id="password" placeholder="password">
                 <input id="register_button" onclick="register()" type="submit" value="login">
             </div>
-            <a id="register_text" onclick="set_register()" href="#">register</a>
-             </div>
+            <!-- now obviusly making fun of people forgetting their password aint good buisness but i cant care less haha -->
+            <a style="float: left;" id="register_text" onclick="set_register()" href="#">register</a> <a style="float: right;" href="https://www.youtube.com/watch?v=I6JZW7zMDfY">forgot password?</a>
             </div>
         </div>
-    </div>
 </body>
 <script>
     var apiUrl = "/user/login"
     function set_register() {
+        //TODO: fix this mess
         apiUrl = apiUrl == "/user/newUser" ? "/user/login" : "/user/newUser"
         $("#login_text").text($("#login_text").text() == "login" ? "register" : "login")
         $("#register_text").text($("#register_text").text() == "login" ? "register" : "login")
